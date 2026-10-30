@@ -1,19 +1,17 @@
+// ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:convert';
-import 'package:web/web.dart' as web;
+import 'dart:html' as html;
 
-Future<void> saveCsv(String filename, List<int> bytes) async {
-  // Convert the UTF-8 bytes directly to a Base64 Data URI
-  final base64Data = base64Encode(bytes);
-  final dataUri = 'data:text/csv;charset=utf-8;base64,$base64Data';
-  
-  // Create a hidden anchor element pointing to the Data URI
-  final anchor = web.HTMLAnchorElement()
-    ..href = dataUri
-    ..download = filename
-    ..style.display = 'none';
-  
-  // Append to body, click, and remove to trigger the download
-  web.document.body?.appendChild(anchor);
+void saveCsv(String filename, List<int> bytes) {
+  final blob = html.Blob([bytes], 'text/csv;charset=utf-8;');
+  final url = html.Url.createObjectUrlFromBlob(blob);
+  final anchor = html.document.createElement('a') as html.AnchorElement
+    ..href = url
+    ..style.display = 'none'
+    ..download = filename;
+    
+  html.document.body!.children.add(anchor);
   anchor.click();
-  anchor.remove();
+  html.document.body!.children.remove(anchor);
+  html.Url.revokeObjectUrl(url);
 }
