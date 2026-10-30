@@ -10,6 +10,7 @@ import '../../data/models/madhhab.dart';
 import '../../data/services/csv_service.dart';
 import '../../data/services/pdf_service.dart';
 import '../../providers/inheritance_provider.dart';
+import '../widgets/help_dialog.dart';
 import '../widgets/inheritance_pie_chart.dart';
 import '../widgets/inheritance_table.dart';
 
@@ -25,6 +26,11 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('app_title'.tr()),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            tooltip: 'help'.tr(),
+            onPressed: () => showDialog(context: context, builder: (_) => const HelpDialog()),
+          ),
           IconButton(
             icon: const Icon(Icons.info_outline),
             tooltip: 'about'.tr(),

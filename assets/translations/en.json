@@ -32,5 +32,9 @@
   "radd_note": "Note: Radd applied. The surplus was redistributed to the heirs.", "special_case": "Special Case Applied",
   "about": "About", "about_desc": "This application calculates Islamic inheritance (Faraid) according to Sunni jurisprudence.", 
   "publisher": "Published by", "publisher_name": "Your Name / Organization", "version": "Version",
-  "save": "Save", "history": "History", "no_history": "No saved calculations.", "load": "Load", "delete": "Delete", "export_csv": "Export CSV"
+  "save": "Save", "history": "History", "no_history": "No saved calculations.", "load": "Load", "delete": "Delete", "export_csv": "Export CSV",
+  "help": "Help", "help_estate": "Enter the gross estate, then subtract any debts, funeral expenses, and Wasiyyah (will) if applicable.",
+  "help_heirs": "Tap the chips to add family members. Use the + and - buttons to set how many of each heir there are.",
+  "help_results": "The table shows the total share for each group, and the individual share for each person. Export to PDF or CSV for your records.",
+  "help_fiqh": "Special Rules: 'Awl (base increase), Radd (surplus redistribution), and Hijab (exclusion of distant relatives) are applied automatically based on the Madhhab selected."
 }

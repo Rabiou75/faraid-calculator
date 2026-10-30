@@ -67,9 +67,32 @@ class PdfService {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(32),
+        // FIX: Increased bottom margin from 32 to 70 to make room for the footer
+        margin: const pw.EdgeInsets.only(top: 32, left: 32, right: 32, bottom: 70),
         textDirection: textDirection,
         theme: arabicFont != null ? pw.ThemeData.withFont(base: arabicFont, bold: arabicFont) : null,
+        
+        footer: (pw.Context context) {
+          return pw.Container(
+            alignment: pw.Alignment.center,
+            margin: const pw.EdgeInsets.only(top: 8),
+            child: pw.Column(
+              mainAxisSize: pw.MainAxisSize.min,
+              children: [
+                pw.Divider(color: PdfColors.grey400, height: 1, thickness: 0.5),
+                pw.SizedBox(height: 6),
+                pw.Text(
+                  '${isArabic ? 'إخلاء مسؤولية: هذا التطبيق أداة حساب. استشر عالماً مؤهلاً للفتوى النهائية.' : (isFrench ? 'Avertissement: Cette application est une aide au calcul. Consultez un savant qualifié.' : 'Disclaimer: This app is a calculation aid. Consult a qualified scholar for final rulings.')}\n'
+                  'Copyright ${AppInfo.year} - ${AppInfo.publisherName} (v${AppInfo.version})',
+                  style: textStyle.copyWith(fontSize: 8, color: PdfColors.grey700),
+                  textDirection: textDirection,
+                  textAlign: pw.TextAlign.center,
+                ),
+              ],
+            ),
+          );
+        },
+
         build: (pw.Context context) {
           return [
             // HEADER
@@ -220,22 +243,6 @@ class PdfService {
                 return pw.Padding(padding: const pw.EdgeInsets.only(bottom: 4), child: pw.Text('- ${heirTypeLabelKey(h.type).tr()} $excludedMsg', style: textStyle.copyWith(fontSize: 10)));
               }),
             ],
-
-            pw.SizedBox(height: 24),
-
-            // FOOTER WITH PUBLISHER NAME
-            pw.Divider(color: PdfColors.grey400),
-            pw.Text(
-              isArabic ? 'إخلاء مسؤولية: هذا التطبيق أداة حساب. استشر عالماً مؤهلاً للفتوى النهائية.'
-                : (isFrench ? 'Avertissement: Cette application est une aide au calcul. Consultez un savant qualifié.' 
-                : 'Disclaimer: This app is a calculation aid. Consult a qualified scholar for final rulings.'),
-              style: textStyle.copyWith(fontSize: 8, color: PdfColors.grey600),
-            ),
-            pw.SizedBox(height: 4),
-            pw.Text(
-              '© ${AppInfo.year} ${'publisher'.tr()}: ${AppInfo.publisherName} | v${AppInfo.version}',
-              style: textStyle.copyWith(fontSize: 9, color: PdfColor.fromHex('#00897B'), fontWeight: pw.FontWeight.bold),
-            ),
           ];
         },
       ),

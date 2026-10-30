@@ -33,5 +33,9 @@
   "radd_note": "Note: Radd applique. L'excedent a ete redistribue.", "special_case": "Cas Special Applique",
   "about": "À propos", "about_desc": "Cette application calcule l'héritage islamique (Faraid) selon la jurisprudence sunnite.",
   "publisher": "Publié par", "publisher_name": "Votre Nom / Organisation", "version": "Version",
-  "save": "Sauvegarder", "history": "Historique", "no_history": "Aucun calcul sauvegarde.", "load": "Charger", "delete": "Supprimer", "export_csv": "Exporter CSV"
+  "save": "Sauvegarder", "history": "Historique", "no_history": "Aucun calcul sauvegarde.", "load": "Charger", "delete": "Supprimer", "export_csv": "Exporter CSV",
+  "help": "Aide", "help_estate": "Entrez la valeur brute, puis soustrayez les dettes, les frais funeraires et la Wasiyyah (testament) le cas echeant.",
+  "help_heirs": "Appuyez sur les boutons pour ajouter des membres de la famille. Utilisez + et - pour definir le nombre d'heritiers.",
+  "help_results": "Le tableau montre la part totale pour chaque groupe, et la part individuelle pour chaque personne. Exportez en PDF ou CSV.",
+  "help_fiqh": "Regles speciales: L'Awl (augmentation de la base), le Radd (redistribution de l'excedent) et le Hijab (exclusion) sont appliques automatiquement."
 }
