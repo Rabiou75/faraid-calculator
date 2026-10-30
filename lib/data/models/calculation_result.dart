@@ -8,6 +8,12 @@ class CalculationResult {
   final String? noteKey;
   final bool succeeded;
   final String? errorMessage;
+  
+  // New V1.1 fields
+  final String currency;
+  final bool aulApplied;
+  final bool raddApplied;
+  final String? specialCase;
 
   const CalculationResult({
     required this.netEstate,
@@ -17,6 +23,10 @@ class CalculationResult {
     this.noteKey,
     this.succeeded = true,
     this.errorMessage,
+    this.currency = 'XAF',
+    this.aulApplied = false,
+    this.raddApplied = false,
+    this.specialCase,
   });
 
   factory CalculationResult.error(String message) => CalculationResult(

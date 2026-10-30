@@ -11,25 +11,29 @@ class FaraidApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => InheritanceProvider(),
-      child: MaterialApp(
-        title: 'app_title'.tr(),
-        debugShowCheckedModeBanner: false,
-        localizationsDelegates: [
-          EasyLocalization.of(context)!.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: EasyLocalization.of(context)!.supportedLocales,
-        locale: EasyLocalization.of(context)!.locale,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-          useMaterial3: true,
-        ),
-        home: const HomeScreen(),
+    final provider = context.watch<InheritanceProvider>();
+
+    return MaterialApp(
+      title: 'app_title'.tr(),
+      debugShowCheckedModeBanner: false,
+      localizationsDelegates: [
+        EasyLocalization.of(context)!.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: EasyLocalization.of(context)!.supportedLocales,
+      locale: EasyLocalization.of(context)!.locale,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        useMaterial3: true,
       ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.dark),
+        useMaterial3: true,
+      ),
+      themeMode: provider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      home: const HomeScreen(),
     );
   }
 }

@@ -36,7 +36,8 @@ class PdfService {
     }
   }
 
-  static Future<void> exportToPdf(CalculationResult result, List<Heir> inputHeirs, Locale locale, {required double grossEstate, required double debts, required double funeralCosts, required double wasiyyah}) async {
+  static Future<void> exportToPdf(CalculationResult result, List<Heir> inputHeirs, Locale locale, {required double grossEstate, required double debts, required double funeralCosts, required double wasiyyah}) async { 
+    final String currency = result.currency;
     final pdf = pw.Document();
     final isArabic = locale.languageCode == 'ar';
     final isFrench = locale.languageCode == 'fr';
@@ -92,8 +93,8 @@ class PdfService {
                   ),
                   pw.SizedBox(height: 4),
                   pw.Text(
-                    isArabic ? 'إجمالي التركة: ${result.netEstate.toStringAsFixed(2)} XAF'
-                      : (isFrench ? 'Valeur totale: ${result.netEstate.toStringAsFixed(2)} XAF' : 'Total Estate: ${result.netEstate.toStringAsFixed(2)} XAF'),
+                    isArabic ? 'إجمالي التركة: ${result.netEstate.toStringAsFixed(2)} $currency'
+                      : (isFrench ? 'Valeur totale: ${result.netEstate.toStringAsFixed(2)} $currency' : 'Total Estate: ${result.netEstate.toStringAsFixed(2)} $currency'),
                     style: textStyle.copyWith(color: PdfColors.white),
                   ),
                   pw.Text(
@@ -118,28 +119,28 @@ class PdfService {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('gross_estate'.tr(), style: textStyle),
-                      pw.Text('${formatter.format(grossEstate)} XAF', style: textStyle),
+                      pw.Text('${formatter.format(grossEstate)} $currency', style: textStyle),
                     ],
                   ),
                   if (debts > 0) pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('debts'.tr(), style: textStyle.copyWith(color: PdfColors.red700)),
-                      pw.Text('-${formatter.format(debts)} XAF', style: textStyle.copyWith(color: PdfColors.red700)),
+                      pw.Text('-${formatter.format(debts)} $currency', style: textStyle.copyWith(color: PdfColors.red700)),
                     ],
                   ),
                   if (funeralCosts > 0) pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('funeral_costs'.tr(), style: textStyle.copyWith(color: PdfColors.red700)),
-                      pw.Text('-${formatter.format(funeralCosts)} XAF', style: textStyle.copyWith(color: PdfColors.red700)),
+                      pw.Text('-${formatter.format(funeralCosts)} $currency', style: textStyle.copyWith(color: PdfColors.red700)),
                     ],
                   ),
                   if (wasiyyah > 0) pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('wasiyyah'.tr(), style: textStyle.copyWith(color: PdfColors.red700)),
-                      pw.Text('-${formatter.format(wasiyyah)} XAF', style: textStyle.copyWith(color: PdfColors.red700)),
+                      pw.Text('-${formatter.format(wasiyyah)} $currency', style: textStyle.copyWith(color: PdfColors.red700)),
                     ],
                   ),
                   pw.Divider(color: PdfColors.grey400),
@@ -147,13 +148,30 @@ class PdfService {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('net_estate'.tr(), style: boldStyle),
-                      pw.Text('${formatter.format(result.netEstate)} XAF', style: boldStyle),
+                      pw.Text('${formatter.format(result.netEstate)} $currency', style: boldStyle),
                     ],
                   ),
                 ],
               ),
             ),
             pw.SizedBox(height: 24),
+                        // AWL / RADD NOTES
+            if (result.aulApplied) pw.Container(
+              margin: const pw.EdgeInsets.only(bottom: 8), padding: const pw.EdgeInsets.all(8),
+              decoration: pw.BoxDecoration(color: PdfColors.amber100, borderRadius: pw.BorderRadius.circular(4)),
+              child: pw.Text('awl_note'.tr(), style: textStyle.copyWith(color: PdfColors.black)),
+            ),
+            if (result.raddApplied) pw.Container(
+              margin: const pw.EdgeInsets.only(bottom: 8), padding: const pw.EdgeInsets.all(8),
+              decoration: pw.BoxDecoration(color: PdfColors.blue100, borderRadius: pw.BorderRadius.circular(4)),
+              child: pw.Text('radd_note'.tr(), style: textStyle.copyWith(color: PdfColors.black)),
+            ),
+            if (result.specialCase != null) pw.Container(
+              margin: const pw.EdgeInsets.only(bottom: 8), padding: const pw.EdgeInsets.all(8),
+              decoration: pw.BoxDecoration(color: PdfColors.purple100, borderRadius: pw.BorderRadius.circular(4)),
+              child: pw.Text('${'special_case'.tr()}: ${result.specialCase}', style: textStyle.copyWith(color: PdfColors.black)),
+            ),
+            
             // --- PIE CHART ---
             pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.center,
@@ -276,7 +294,7 @@ class PdfService {
                         ),
                         pw.Expanded(flex: 2, child: pw.Text(share.finalShare.toString(), textAlign: pw.TextAlign.center, style: boldStyle)),
                         pw.Expanded(flex: 2, child: pw.Text('${percentage.toStringAsFixed(2)}%', textAlign: pw.TextAlign.center, style: boldStyle.copyWith(color: PdfColors.orange700))),
-                        pw.Expanded(flex: 4, child: pw.Text('${formatter.format(share.totalValue)} XAF', textAlign: pw.TextAlign.right, style: boldStyle)),
+                        pw.Expanded(flex: 4, child: pw.Text('${formatter.format(share.totalValue)} $currency', textAlign: pw.TextAlign.right, style: boldStyle)),
                       ],
                     ),
                   ),
@@ -303,7 +321,7 @@ class PdfService {
                             ),
                             pw.Expanded(flex: 2, child: pw.Text(indFraction.toString(), textAlign: pw.TextAlign.center, style: textStyle.copyWith(color: PdfColors.grey600))),
                             pw.Expanded(flex: 2, child: pw.Text('${indPct.toStringAsFixed(2)}%', textAlign: pw.TextAlign.center, style: textStyle.copyWith(color: PdfColors.grey600))),
-                            pw.Expanded(flex: 4, child: pw.Text('${formatter.format(share.perPersonValue)} XAF', textAlign: pw.TextAlign.right, style: textStyle.copyWith(color: PdfColors.grey800))),
+                            pw.Expanded(flex: 4, child: pw.Text('${formatter.format(share.perPersonValue)} $currency', textAlign: pw.TextAlign.right, style: textStyle.copyWith(color: PdfColors.grey800))),
                           ],
                         ),
                       );
