@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../data/models/heir.dart';
 import '../../data/models/madhhab.dart';
+import '../../data/services/csv_service.dart';
 import '../../data/services/pdf_service.dart';
 import '../../providers/inheritance_provider.dart';
 import '../widgets/inheritance_pie_chart.dart';
@@ -24,13 +25,15 @@ class HomeScreen extends StatelessWidget {
         title: Text('app_title'.tr()),
         actions: [
           IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: 'history'.tr(),
+            onPressed: () => _showHistoryDialog(context, provider),
+          ),
+          IconButton(
             icon: Icon(provider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
             onPressed: () => provider.toggleDarkMode(),
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => provider.reset(),
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: () => provider.reset()),
           PopupMenuButton<String>(
             icon: const Icon(Icons.language),
             onSelected: (code) {
@@ -51,7 +54,6 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // --- CURRENCY SELECTOR ---
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -69,75 +71,33 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text('welcome'.tr(), style: Theme.of(context).textTheme.headlineMedium),
-            const SizedBox(height: 12),
-            Text('home_subtitle'.tr()),
             const SizedBox(height: 32),
 
-            // --- ESTATE INPUTS ---
             TextField(
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
-                labelText: 'gross_estate'.tr(),
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.account_balance_wallet),
-                suffixText: provider.currency,
-              ),
+              decoration: InputDecoration(labelText: 'gross_estate'.tr(), border: const OutlineInputBorder(), prefixIcon: const Icon(Icons.account_balance_wallet), suffixText: provider.currency),
               onChanged: (v) => provider.setGrossEstate(double.tryParse(v) ?? 0),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(
-                  child: TextField(
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText: 'debts'.tr(),
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.money_off),
-                      suffixText: provider.currency,
-                    ),
-                    onChanged: (v) => provider.setDebts(double.tryParse(v) ?? 0),
-                  ),
-                ),
+                Expanded(child: TextField(keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: InputDecoration(labelText: 'debts'.tr(), border: const OutlineInputBorder(), prefixIcon: const Icon(Icons.money_off), suffixText: provider.currency), onChanged: (v) => provider.setDebts(double.tryParse(v) ?? 0))),
                 const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText: 'funeral_costs'.tr(),
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.local_florist),
-                      suffixText: provider.currency,
-                    ),
-                    onChanged: (v) => provider.setFuneralCosts(double.tryParse(v) ?? 0),
-                  ),
-                ),
+                Expanded(child: TextField(keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: InputDecoration(labelText: 'funeral_costs'.tr(), border: const OutlineInputBorder(), prefixIcon: const Icon(Icons.local_florist), suffixText: provider.currency), onChanged: (v) => provider.setFuneralCosts(double.tryParse(v) ?? 0))),
               ],
             ),
             const SizedBox(height: 12),
             TextField(
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
-                labelText: 'wasiyyah'.tr(),
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.handshake),
-                suffixText: provider.currency,
-              ),
+              decoration: InputDecoration(labelText: 'wasiyyah'.tr(), border: const OutlineInputBorder(), prefixIcon: const Icon(Icons.handshake), suffixText: provider.currency),
               onChanged: (v) => provider.setWasiyyah(double.tryParse(v) ?? 0),
             ),
             if (provider.wasiyyah > 0)
-              SwitchListTile(
-                title: Text('wasiyyah_approved'.tr(), style: const TextStyle(fontSize: 14)),
-                value: provider.wasiyyahApproved,
-                onChanged: (v) => provider.setWasiyyahApproved(v),
-              ),
+              SwitchListTile(title: Text('wasiyyah_approved'.tr(), style: const TextStyle(fontSize: 14)), value: provider.wasiyyahApproved, onChanged: (v) => provider.setWasiyyahApproved(v)),
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,
-              child: Text(
-                '${'net_estate'.tr()}: ${formatter.format((provider.grossEstate - provider.debts - provider.funeralCosts - provider.wasiyyah).clamp(0, double.infinity))} ${provider.currency}',
-                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.teal),
-              ),
+              child: Text('${'net_estate'.tr()}: ${formatter.format((provider.grossEstate - provider.debts - provider.funeralCosts - provider.wasiyyah).clamp(0, double.infinity))} ${provider.currency}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.teal)),
             ),
             const SizedBox(height: 24),
 
@@ -146,23 +106,15 @@ class HomeScreen extends StatelessWidget {
                 ButtonSegment(value: true, label: Text('male'.tr()), icon: const Icon(Icons.male)),
                 ButtonSegment(value: false, label: Text('female'.tr()), icon: const Icon(Icons.female)),
               ],
-              selected: {provider.deceasedIsMale},
-              onSelectionChanged: (s) => provider.setDeceasedGender(s.first),
+              selected: {provider.deceasedIsMale}, onSelectionChanged: (s) => provider.setDeceasedGender(s.first),
             ),
             const SizedBox(height: 24),
 
             DropdownButtonFormField<Madhhab>(
               value: provider.settings.madhhab,
-              decoration: InputDecoration(
-                labelText: 'madhhab'.tr(),
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.menu_book),
-              ),
+              decoration: InputDecoration(labelText: 'madhhab'.tr(), border: const OutlineInputBorder(), prefixIcon: const Icon(Icons.menu_book)),
               items: Madhhab.values.map((m) => DropdownMenuItem(value: m, child: Text(m.key.tr()))).toList(),
-              onChanged: (m) {
-                if (m == null) return;
-                provider.updateSettings(provider.settings.copyWith(madhhab: m));
-              },
+              onChanged: (m) { if (m == null) return; provider.updateSettings(provider.settings.copyWith(madhhab: m)); },
             ),
             if (provider.settings.madhhab == Madhhab.maliki) ...[
               const SizedBox(height: 16),
@@ -180,12 +132,7 @@ class HomeScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('add_heir'.tr(), style: Theme.of(context).textTheme.titleLarge),
-                if (provider.heirs.isNotEmpty)
-                  TextButton.icon(
-                    icon: const Icon(Icons.clear_all, size: 18),
-                    label: const Text('Clear'),
-                    onPressed: () => provider.reset(),
-                  ),
+                if (provider.heirs.isNotEmpty) TextButton.icon(icon: const Icon(Icons.clear_all, size: 18), label: const Text('Clear'), onPressed: () => provider.reset()),
               ],
             ),
             const SizedBox(height: 16),
@@ -198,8 +145,7 @@ class HomeScreen extends StatelessWidget {
               )
             else
               Card(
-                elevation: 0,
-                color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                elevation: 0, color: Theme.of(context).colorScheme.surfaceContainerLowest,
                 shape: RoundedRectangleBorder(side: BorderSide(color: Theme.of(context).dividerColor), borderRadius: BorderRadius.circular(12)),
                 child: Column(
                   children: provider.heirs.map((h) {
@@ -208,15 +154,9 @@ class HomeScreen extends StatelessWidget {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          IconButton(
-                            icon: const Icon(Icons.remove_circle_outline),
-                            onPressed: h.count > 1 ? () => provider.addOrUpdateHeir(h.copyWith(count: h.count - 1)) : null,
-                          ),
+                          IconButton(icon: const Icon(Icons.remove_circle_outline), onPressed: h.count > 1 ? () => provider.addOrUpdateHeir(h.copyWith(count: h.count - 1)) : null),
                           Text('${h.count}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                          IconButton(
-                            icon: const Icon(Icons.add_circle_outline),
-                            onPressed: () => provider.addOrUpdateHeir(h.copyWith(count: h.count + 1)),
-                          ),
+                          IconButton(icon: const Icon(Icons.add_circle_outline), onPressed: () => provider.addOrUpdateHeir(h.copyWith(count: h.count + 1))),
                           const SizedBox(width: 8),
                           IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () => provider.removeHeir(h)),
                         ],
@@ -228,8 +168,7 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 8, runSpacing: 8,
               children: [
                 _heirChip(context, provider, iu.HeirType.husband), _heirChip(context, provider, iu.HeirType.wife),
                 _heirChip(context, provider, iu.HeirType.father), _heirChip(context, provider, iu.HeirType.mother),
@@ -243,18 +182,35 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
 
-            FilledButton.icon(
-              icon: const Icon(Icons.calculate),
-              label: Text('calculate'.tr()),
-              style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), textStyle: const TextStyle(fontSize: 16)),
-              onPressed: () => provider.calculate(),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    icon: const Icon(Icons.calculate),
+                    label: Text('calculate'.tr()),
+                    style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), textStyle: const TextStyle(fontSize: 16)),
+                    onPressed: () => provider.calculate(),
+                  ),
+                ),
+                if (provider.result != null && provider.result!.succeeded) ...[
+                  const SizedBox(width: 12),
+                  IconButton.filledTonal(
+                    icon: const Icon(Icons.save),
+                    tooltip: 'save'.tr(),
+                    style: IconButton.styleFrom(padding: const EdgeInsets.all(16)),
+                    onPressed: () {
+                      provider.saveCurrentCalculation();
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saved to history!')));
+                    },
+                  ),
+                ],
+              ],
             ),
             const SizedBox(height: 24),
 
             if (provider.result != null)
               Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 2, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: provider.result!.succeeded
@@ -264,30 +220,13 @@ class HomeScreen extends StatelessWidget {
                             Text('results'.tr(), style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                             const Divider(),
                             
-                            // --- AWL / RADD / SPECIAL CASE BANNERS ---
                             if (provider.result!.aulApplied)
-                              Container(
-                                margin: const EdgeInsets.only(bottom: 8),
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.amber)),
-                                child: Row(children: [const Icon(Icons.warning_amber, color: Colors.orange), const SizedBox(width: 8), Expanded(child: Text('awl_note'.tr(), style: const TextStyle(color: Colors.black87, fontSize: 12)))]),
-                              ),
+                              Container(margin: const EdgeInsets.only(bottom: 8), padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.amber)), child: Row(children: [const Icon(Icons.warning_amber, color: Colors.orange), const SizedBox(width: 8), Expanded(child: Text('awl_note'.tr(), style: const TextStyle(color: Colors.black87, fontSize: 12)))])),
                             if (provider.result!.raddApplied)
-                              Container(
-                                margin: const EdgeInsets.only(bottom: 8),
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(color: Colors.blue.shade100, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.blue)),
-                                child: Row(children: [const Icon(Icons.info_outline, color: Colors.blue), const SizedBox(width: 8), Expanded(child: Text('radd_note'.tr(), style: const TextStyle(color: Colors.black87, fontSize: 12)))]),
-                              ),
+                              Container(margin: const EdgeInsets.only(bottom: 8), padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.blue.shade100, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.blue)), child: Row(children: [const Icon(Icons.info_outline, color: Colors.blue), const SizedBox(width: 8), Expanded(child: Text('radd_note'.tr(), style: const TextStyle(color: Colors.black87, fontSize: 12)))])),
                             if (provider.result!.specialCase != null)
-                              Container(
-                                margin: const EdgeInsets.only(bottom: 8),
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(color: Colors.purple.shade100, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.purple)),
-                                child: Row(children: [const Icon(Icons.star, color: Colors.purple), const SizedBox(width: 8), Expanded(child: Text('${'special_case'.tr()}: ${provider.result!.specialCase}', style: const TextStyle(color: Colors.black87, fontSize: 12))) ]),
-                              ),
+                              Container(margin: const EdgeInsets.only(bottom: 8), padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.purple.shade100, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.purple)), child: Row(children: [const Icon(Icons.star, color: Colors.purple), const SizedBox(width: 8), Expanded(child: Text('${'special_case'.tr()}: ${provider.result!.specialCase}', style: const TextStyle(color: Colors.black87, fontSize: 12))) ])),
 
-                            // NET ESTATE SUMMARY
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(color: Theme.of(context).colorScheme.primaryContainer, borderRadius: BorderRadius.circular(8)),
@@ -309,7 +248,6 @@ class HomeScreen extends StatelessWidget {
                             
                             InheritanceTable(shares: provider.result!.shares, netEstate: provider.result!.netEstate),
 
-                            // MARGINAL NOTES
                             Builder(builder: (context) {
                               final blockedHeirs = provider.heirs.where((h) => !provider.result!.shares.any((s) => s.heirType == h.type && !s.isBlocked)).toList();
                               if (blockedHeirs.isEmpty) return const SizedBox();
@@ -320,36 +258,34 @@ class HomeScreen extends StatelessWidget {
                                   Text('marginal_notes'.tr(), style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.error, letterSpacing: 1.2)),
                                   const SizedBox(height: 8),
                                   ...blockedHeirs.map((h) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(bottom: 6),
-                                      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                        const Text('\u2022 ', style: TextStyle(fontWeight: FontWeight.bold)),
-                                        Expanded(child: Text('${h.labelKey.tr()} ${'is_excluded'.tr()}', style: const TextStyle(fontSize: 13))),
-                                      ]),
-                                    );
+                                    return Padding(padding: const EdgeInsets.only(bottom: 6), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('\u2022 ', style: TextStyle(fontWeight: FontWeight.bold)), Expanded(child: Text('${h.labelKey.tr()} ${'is_excluded'.tr()}', style: const TextStyle(fontSize: 13)))]));
                                   }),
                                 ],
                               );
                             }),
 
                             if (provider.result!.noteKey != null)
-                              Container(
-                                margin: const EdgeInsets.only(top: 16), padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(color: Theme.of(context).colorScheme.secondaryContainer, borderRadius: BorderRadius.circular(8)),
-                                child: Row(children: [const Icon(Icons.info_outline, size: 20), const SizedBox(width: 8), Expanded(child: Text(provider.result!.noteKey!.tr(), style: TextStyle(fontStyle: FontStyle.italic, color: Theme.of(context).colorScheme.onSecondaryContainer)))]),
-                              ),
+                              Container(margin: const EdgeInsets.only(top: 16), padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Theme.of(context).colorScheme.secondaryContainer, borderRadius: BorderRadius.circular(8)), child: Row(children: [const Icon(Icons.info_outline, size: 20), const SizedBox(width: 8), Expanded(child: Text(provider.result!.noteKey!.tr(), style: TextStyle(fontStyle: FontStyle.italic, color: Theme.of(context).colorScheme.onSecondaryContainer)))])),
                               
                             const SizedBox(height: 24),
-                            SizedBox(
-                              width: double.infinity,
-                              child: OutlinedButton.icon(
-                                icon: const Icon(Icons.picture_as_pdf),
-                                label: const Text('Export PDF Report'),
-                                onPressed: () => PdfService.exportToPdf(
-                                  provider.result!, provider.heirs, context.locale,
-                                  grossEstate: provider.grossEstate, debts: provider.debts, funeralCosts: provider.funeralCosts, wasiyyah: provider.wasiyyah,
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    icon: const Icon(Icons.picture_as_pdf),
+                                    label: const Text('PDF'),
+                                    onPressed: () => PdfService.exportToPdf(provider.result!, provider.heirs, context.locale, grossEstate: provider.grossEstate, debts: provider.debts, funeralCosts: provider.funeralCosts, wasiyyah: provider.wasiyyah),
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    icon: const Icon(Icons.table_view),
+                                    label: Text('export_csv'.tr()),
+                                    onPressed: () => CsvService.exportToCsv(provider.result!),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         )
@@ -374,6 +310,54 @@ class HomeScreen extends StatelessWidget {
       checkmarkColor: Theme.of(context).colorScheme.onPrimary,
       selectedColor: Theme.of(context).colorScheme.primary,
       labelStyle: TextStyle(color: isAdded ? Theme.of(context).colorScheme.onPrimary : null),
+    );
+  }
+
+  void _showHistoryDialog(BuildContext context, InheritanceProvider provider) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('history'.tr()),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: provider.savedHistory.isEmpty
+                ? Text('no_history'.tr(), textAlign: TextAlign.center)
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: provider.savedHistory.length,
+                    itemBuilder: (context, index) {
+                      final item = provider.savedHistory[index];
+                      final date = DateTime.parse(item['date']);
+                      final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(date);
+                      return ListTile(
+                        title: Text('${(item['grossEstate'] as num).toStringAsFixed(0)} ${item['currency']}'),
+                        subtitle: Text(formattedDate),
+                        leading: const Icon(Icons.history),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.download, color: Colors.blue),
+                              tooltip: 'load'.tr(),
+                              onPressed: () {
+                                provider.loadCalculation(item);
+                                Navigator.pop(context);
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              tooltip: 'delete'.tr(),
+                              onPressed: () => provider.deleteHistory(item['id']),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        );
+      },
     );
   }
 }

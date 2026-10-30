@@ -1,4 +1,4 @@
-﻿name: faraid_app
+name: faraid_app
 description: A multilingual Islamic inheritance calculator (Sunni, Maliki-aware).
 publish_to: 'none'
 version: 0.1.0+1
@@ -20,6 +20,9 @@ dependencies:
   printing: ^5.13.1
   islamic_utils: ^1.0.0
   intl: ^0.20.3
+  csv: ^8.0.0
+  file_saver: ^0.7.0
+  web: ^1.1.2
 
 dev_dependencies:
   flutter_test:
