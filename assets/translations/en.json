@@ -30,7 +30,7 @@
   "deductions": "Deductions", "net_estate": "Net Estate", "wasiyyah_approved": "Approved by heirs",
   "dark_mode": "Dark Mode", "currency": "Currency", "awl_note": "Note: 'Awl applied. Total fixed shares exceeded 1, so the base was increased.",
   "radd_note": "Note: Radd applied. The surplus was redistributed to the heirs.", "special_case": "Special Case Applied",
-  "about": "About", "about_desc": "This application calculates Islamic inheritance (Faraid) according to Sunni jurisprudence.", 
+  "about": "About", "about_desc": "This application calculates Islamic inheritance (Faraid) according to Sunni jurisprudence.",
   "publisher": "Published by", "publisher_name": "Your Name / Organization", "version": "Version",
   "save": "Save", "history": "History", "no_history": "No saved calculations.", "load": "Load", "delete": "Delete", "export_csv": "Export CSV",
   "help": "Help", "help_estate": "Enter the gross estate, then subtract any debts, funeral expenses, and Wasiyyah (will) if applicable.",
